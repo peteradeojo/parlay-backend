@@ -1,6 +1,7 @@
-import { DeepPartial, Repository } from "typeorm";
+import { DeepPartial, In, Not, Repository } from "typeorm";
 import Database from "../lib/database";
 import { Parlay, Status } from "../entity/Parlay";
+import { randomInt } from "crypto";
 
 export default class ParlayController {
 	private repository: Repository<Parlay>;
@@ -17,7 +18,11 @@ export default class ParlayController {
 
 		if (as_draft) {
 			parlay.status = Status.DRAFT;
+		} else {
+			parlay.code = randomInt(9999, 1000000);
 		}
+
+		await this.repository.save(parlay);
 
 		return parlay;
 	}
@@ -26,6 +31,7 @@ export default class ParlayController {
 		return await this.repository.find({
 			where: {
 				creator_id: userId,
+				status: Not(In([Status.DRAFT])),
 			},
 		});
 	}
@@ -37,5 +43,18 @@ export default class ParlayController {
 				createdat: "desc",
 			},
 		});
+	}
+
+	async getUserDrafts(userid: number): Promise<Parlay[]> {
+		return await this.repository.find({
+			where: {
+				creator_id: userid,
+				status: Status.DRAFT,
+			},
+		});
+	}
+
+	async getParlay(id: number | string): Promise<Parlay> {
+		return await this.repository.findOne({ where: { id: Number(id) } });
 	}
 }

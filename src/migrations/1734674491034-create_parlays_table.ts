@@ -31,7 +31,6 @@ export class CreateParlaysTable1734674491034 implements MigrationInterface {
 						name: "outcomes",
 						type: "json",
 						isNullable: true,
-						isArray: true,
 					},
 					{
 						name: "creator_id",
@@ -56,12 +55,22 @@ export class CreateParlaysTable1734674491034 implements MigrationInterface {
 					},
 					{
 						name: "start_date",
-						type: "timestamp",
+						type: "date",
+						isNullable: true,
+					},
+					{
+						name: "start_time",
+						type: "time",
 						isNullable: true,
 					},
 					{
 						name: "close_date",
-						type: "timestamp",
+						type: "date",
+						isNullable: true,
+					},
+					{
+						name: "close_time",
+						type: "time",
 						isNullable: true,
 					},
 					...DefaultColumns,

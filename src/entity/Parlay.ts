@@ -22,7 +22,7 @@ export type ParlayOutcome = {
 }[];
 
 @Entity({
-	name: 'parlays',
+	name: "parlays",
 })
 export class Parlay extends Timestamp {
 	@PrimaryGeneratedColumn()
@@ -49,5 +49,20 @@ export class Parlay extends Timestamp {
 	status: Status;
 
 	@Column()
-	code: string;
+	code: number;
+
+	@Column()
+	entry_amount: number;
+
+	@Column()
+	start_date: string;
+
+	@Column()
+	close_date: string;
+
+	@Column()
+	start_time: string;
+
+	@Column()
+	close_time: string;
 }
