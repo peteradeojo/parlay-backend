@@ -4,6 +4,8 @@ import { User } from "./entity/User";
 import { Parlay } from "./entity/Parlay";
 import { Wallet } from "./entity/Wallet";
 
+if (process.env.NODE_ENV != "production") require('dotenv').config();
+
 export const AppDataSource = new DataSource({
 	type: "postgres",
 	// host: process.env.DB_HOST,

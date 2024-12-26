@@ -34,7 +34,10 @@
    "scripts": {
       "dev": "tsnd --respawn --cls --rs -r dotenv/config src/index.ts",
       "start": "ts-node src/index.ts",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "typeorm": "typeorm-ts-node-commonjs",
+      "migrate:run": "typeorm-ts-node-commonjs -d src/data-source.ts migration:run",
+      "migrate:revert": "typeorm-ts-node-commonjs -d src/data-source.ts migration:revert",
+      "migrate:show": "typeorm-ts-node-commonjs -d src/data-source.ts migration:show"
    },
    "license": "MIT"
 }
