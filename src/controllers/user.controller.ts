@@ -21,7 +21,7 @@ export default class UserController {
 		let user = this.userRepository.create(data);
 
 		const salt = genSaltSync(12);
-		user.password = hashSync(data.password, salt);
+		user.password = hashSync(data.password!, salt);
 
 		user = await this.userRepository.save(user);
 		const wallet = new WalletService().createWallet(user.id);

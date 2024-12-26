@@ -4,6 +4,7 @@ import Database from "./lib/database";
 import passport from 'passport';
 import app from "./server";
 import { setupPassport } from "./lib/passport";
+import { NextFunction, Request, Response } from "express";
 
 AppDataSource.initialize()
 	.then(async (source) => {
@@ -14,7 +15,7 @@ AppDataSource.initialize()
         setupPassport(passport);
         app.use(passport.initialize());
 
-		app.use((err, req, res, next) => {
+		app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 			console.log(err);
 			res.status(500).json({
 				message: err,

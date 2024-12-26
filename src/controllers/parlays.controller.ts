@@ -62,7 +62,7 @@ export default class ParlayController {
 		});
 	}
 
-	async getParlay(id: number | string): Promise<Parlay> {
+	async getParlay(id: number | string): Promise<Parlay|null> {
 		return await this.repository.findOne({
 			where: { id: Number(id) },
 			relations: {
@@ -84,7 +84,7 @@ export default class ParlayController {
 		return parlay;
 	}
 
-	async enterParlay(user_id: number, parlay_id: number): Promise<Bet> {
+	async enterParlay(user_id: number, parlay_id: number): Promise<Bet|null> {
 		return null;
 	}
 }

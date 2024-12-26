@@ -11,11 +11,11 @@ export const setupPassport = (passport: PassportStatic) => {
 		new JwtStrategy(
 			{
 				jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-                secretOrKey: process.env.JWT_TOKEN,
+                secretOrKey: process.env.JWT_TOKEN!,
 			},
 			async (payload: DeepPartial<User> & JwtPayload, done) => {
                 try {
-                    const user = await (new UserController).getUser(payload.email);
+                    const user = await (new UserController).getUser(payload.email!);
     
                     if (!user) {
                         return done(false, null, "User not found.");

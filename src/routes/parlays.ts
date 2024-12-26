@@ -60,7 +60,7 @@ export default () => {
 	});
 
 	router.get("/drafts", async (req, res) => {
-		const drafts = await new ParlayController().getUserDrafts(req.user.id);
+		const drafts = await new ParlayController().getUserDrafts(req.user!.id);
 		res.json(drafts);
 		return;
 	});
@@ -103,7 +103,7 @@ export default () => {
 					return;
 				}
 
-				let code = null;
+				let code = undefined;
 
 				if (status == Status.OPEN) {
 					code = randomInt(
@@ -125,7 +125,7 @@ export default () => {
 				});
 
 				res.json({ parlay, result });
-			} catch (error) {
+			} catch (error: any) {
 				console.error(error);
 				res.status(500).json({ message: error.message });
 			}
