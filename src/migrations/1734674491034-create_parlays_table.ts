@@ -44,13 +44,15 @@ export class CreateParlaysTable1734674491034 implements MigrationInterface {
 					{
 						name: "pool",
 						type: "numeric",
-						precision: 2,
+						precision: 6,
+						scale: 2,
 						default: 0,
 					},
 					{
 						name: "entry_amount",
 						type: "numeric",
-						precision: 2,
+						precision: 6,
+						scale: 2,
 						isNullable: true,
 					},
 					{

@@ -1,9 +1,14 @@
 import { Handler } from "express";
 import { Schema } from "joi";
 
-export const validateSchema = (schema: Schema): Handler => {
+export const validateSchema = (
+	schema: Schema,
+	allowUnknown?: boolean
+): Handler => {
 	return (req, res, next) => {
-		const errors = schema.validate(req.body);
+		const errors = schema.validate(req.body, {
+			allowUnknown,
+		});
 		if (!errors.error) {
 			return next();
 		}

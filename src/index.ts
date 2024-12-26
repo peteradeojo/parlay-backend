@@ -14,6 +14,12 @@ AppDataSource.initialize()
         setupPassport(passport);
 
         app.use(passport.initialize());
+		app.use((err, req, res, next) => {
+			console.log(err);
+			res.status(500).json({
+				message: err,
+			});
+		});
 
 		app.listen(port, () => console.log(`Server running on: ${port}`));
 	})

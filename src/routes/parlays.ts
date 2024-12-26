@@ -2,7 +2,9 @@ import express from "express";
 import ParlayController from "../controllers/parlays.controller";
 import { validateSchema } from "../middleware/validate";
 import Joi from "joi";
-import { Status } from "../entity/Parlay";
+import { Parlay, Status } from "../entity/Parlay";
+import { DeepPartial } from "typeorm";
+import { randomInt } from "crypto";
 
 const router = express.Router();
 
@@ -40,12 +42,16 @@ export default () => {
 
 	router.post("/new", validateSchema(parlaySchema), async (req, res) => {
 		try {
+			const data: DeepPartial<Parlay> = req.body;
+
+			console.log(data);
+
 			const parlay = await new ParlayController().createParlay(
 				{ ...req.body, creator_id: req.user!.id },
 				req.body.status === 0
 			);
 
-			res.status(201).json({ parlay, is_draft: parlay.status == Status.DRAFT });
+			res.json(parlay);
 		} catch (err) {
 			console.error(err);
 			res.status(500).json({ error: err });
@@ -67,7 +73,65 @@ export default () => {
 			);
 			res.json(parlay);
 		})
-		.post(validateSchema(parlaySchema), async (req, res) => {});
+		.patch(validateSchema(parlaySchema, true), async (req, res) => {
+			try {
+				const {
+					outcomes,
+					title,
+					close_date,
+					close_time,
+					entry_amount,
+					start_date,
+					start_time,
+					status,
+				}: Partial<Parlay> = req.body;
+				const controller = new ParlayController();
+
+				const parlay = await controller.getParlay(req.body.id);
+				if (!parlay) {
+					res.status(400).json({
+						message: "Parlay not found",
+					});
+					return;
+				}
+
+				if (parlay.status != Status.DRAFT) {
+					res.status(400).json({
+						message:
+							"This parlay has reached a resolved state already and cannot be re-opened",
+					});
+					return;
+				}
+
+				let code = null;
+
+				if (status == Status.OPEN) {
+					code = randomInt(
+						ParlayController.MIN_CODE,
+						ParlayController.MAX_CODE
+					);
+				}
+
+				const result = await controller.updateParlay(parlay.id, {
+					title,
+					outcomes,
+					close_date,
+					close_time,
+					start_date,
+					start_time,
+					status,
+					entry_amount,
+					code,
+				});
+
+				res.json({ parlay, result });
+			} catch (error) {
+				console.error(error);
+				res.status(500).json({ message: error.message });
+			}
+		});
+
+	router.post("/enter/:id(\\d+)", async (req, res) => {});
 
 	return router;
 };

@@ -31,10 +31,7 @@ export class Parlay extends Timestamp {
 	@Column()
 	title: String;
 
-	@JoinColumn({
-		name: "creator_id",
-	})
-	@OneToOne(() => User)
+	@Column()
 	creator_id: Number;
 
 	@Column({
@@ -65,4 +62,11 @@ export class Parlay extends Timestamp {
 
 	@Column()
 	close_time: string;
+
+	@JoinColumn({
+		name: 'creator_id',
+		referencedColumnName: 'id',
+	})
+	@OneToOne(() => User)
+	creator: User;
 }

@@ -16,7 +16,8 @@ export class CreateWalletsTable1734715582470 implements MigrationInterface {
 					{
 						name: "amount",
 						type: "numeric",
-						precision: 2,
+						precision: 6,
+						scale: 2,
 						default: 0,
 					},
 					{
