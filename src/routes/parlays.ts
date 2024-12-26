@@ -103,7 +103,7 @@ export default () => {
 					return;
 				}
 
-				let code = undefined;
+				let code: number | undefined = undefined;
 
 				if (status == Status.OPEN) {
 					code = randomInt(

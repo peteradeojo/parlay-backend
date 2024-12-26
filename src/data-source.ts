@@ -4,7 +4,9 @@ import { User } from "./entity/User";
 import { Parlay } from "./entity/Parlay";
 import { Wallet } from "./entity/Wallet";
 
-if (process.env.NODE_ENV != "production") require('dotenv').config();
+if (process.env.APP_ENV != "production") {
+	require("dotenv").config();
+}
 
 export const AppDataSource = new DataSource({
 	type: "postgres",
@@ -17,7 +19,11 @@ export const AppDataSource = new DataSource({
 	synchronize: false,
 	logging: false,
 	entities: [User, Parlay, Wallet],
-	migrations: ["./src/migrations/*"],
+	migrations: [
+		process.env.NODE_ENV == "production"
+			? "./build/migrations/*.js"
+			: "./src/migrations/*.ts",
+	],
 	subscribers: [],
 });
 
