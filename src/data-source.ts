@@ -6,11 +6,12 @@ import { Wallet } from "./entity/Wallet";
 
 export const AppDataSource = new DataSource({
 	type: "postgres",
-	host: "localhost",
-	port: 5432,
-	username: "postgres",
-	password: "peterojo32",
-	database: "parlay",
+	// host: process.env.DB_HOST,
+	// port: Number(process.env.DB_PORT),
+	// username: process.env.DB_USER,
+	// password: process.env.DB_PASSWORD,
+	// database: process.env.DB_NAME,
+	url: process.env.DATABASE_URL,
 	synchronize: false,
 	logging: false,
 	entities: [User, Parlay, Wallet],

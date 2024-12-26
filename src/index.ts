@@ -12,8 +12,8 @@ AppDataSource.initialize()
 		Database.setDatasource(source);
         
         setupPassport(passport);
-
         app.use(passport.initialize());
+
 		app.use((err, req, res, next) => {
 			console.log(err);
 			res.status(500).json({
@@ -23,5 +23,5 @@ AppDataSource.initialize()
 
 		app.listen(port, () => console.log(`Server running on: ${port}`));
 	})
-	.catch((error) => console.log(error));
+	.catch((error) => console.error(error));
 	
