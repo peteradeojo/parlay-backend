@@ -3,6 +3,7 @@ import express from "express";
 import auth from "./auth";
 import parlays from "./parlays";
 import passport from "passport";
+import wallet from "./wallet";
 
 const router = express.Router();
 
@@ -16,6 +17,11 @@ export default () => {
 		"/parlays",
 		passport.authenticate("jwt", { session: false }),
 		parlays()
+	);
+	router.use(
+		"/wallet",
+		passport.authenticate("jwt", { session: false }),
+		wallet()
 	);
 
 	return router;

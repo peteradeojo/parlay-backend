@@ -5,12 +5,16 @@ import passport from 'passport';
 import app from "./server";
 import { setupPassport } from "./lib/passport";
 import { NextFunction, Request, Response } from "express";
+import Paystack from "./services/paystack";
 
 AppDataSource.initialize()
 	.then(async (source) => {
 		const port = process.env.PORT || 3000;
 
 		Database.setDatasource(source);
+
+		Paystack.setKeys(process.env.PAYSTACK_SECRET_KEY!, process.env.PAYSTACK_PUBLIC_KEY!);
+		Paystack.bootstrap();
         
         setupPassport(passport);
         app.use(passport.initialize());
