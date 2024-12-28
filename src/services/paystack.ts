@@ -50,6 +50,11 @@ export default class Paystack {
 	}
 
 	static bootstrap() {
+		this.setKeys(
+			process.env.PAYSTACK_SECRET_KEY!,
+			process.env.PAYSTACK_PUBLIC_KEY!
+		);
+		
 		this.ax = axios.create({
 			headers: {
 				Authorization: `Bearer ${this.secretKey}`,

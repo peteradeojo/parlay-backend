@@ -4,6 +4,7 @@ import { Parlay, Status } from "../entity/Parlay";
 import { randomInt } from "crypto";
 import { User } from "../entity/User";
 import Bet from "../entity/Bet";
+import BettingService from "../services/bets.service";
 
 export default class ParlayController {
 	private repository: Repository<Parlay>;
@@ -62,13 +63,20 @@ export default class ParlayController {
 		});
 	}
 
-	async getParlay(id: number | string): Promise<Parlay|null> {
-		return await this.repository.findOne({
+	async getParlay(id: number | string) {
+		const parlay = await this.repository.findOne({
 			where: { id: Number(id) },
 			relations: {
 				creator: true,
+				bets: true,
 			},
 		});
+
+		return parlay;
+	}
+
+	async saveParlay(parlay: Parlay) {
+		return await this.repository.save(parlay, { reload: true });
 	}
 
 	async updateParlay(
@@ -81,10 +89,15 @@ export default class ParlayController {
 			},
 			data
 		);
+
 		return parlay;
 	}
 
-	async enterParlay(user_id: number, parlay_id: number): Promise<Bet|null> {
+	async enterParlay(user_id: number, parlay_id: number): Promise<Bet | null> {
 		return null;
+	}
+
+	async getOutcomeOdds(parlay_id: number, outcome: number) {
+		const pool = await BettingService.getParlayBets(parlay_id);
 	}
 }

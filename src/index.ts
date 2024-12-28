@@ -1,11 +1,12 @@
 import { AppDataSource } from "./data-source";
 import Database from "./lib/database";
 
-import passport from 'passport';
+import passport from "passport";
 import app from "./server";
 import { setupPassport } from "./lib/passport";
 import { NextFunction, Request, Response } from "express";
 import Paystack from "./services/paystack";
+import { ServiceManager } from "./lib/util";
 
 AppDataSource.initialize()
 	.then(async (source) => {
@@ -13,11 +14,10 @@ AppDataSource.initialize()
 
 		Database.setDatasource(source);
 
-		Paystack.setKeys(process.env.PAYSTACK_SECRET_KEY!, process.env.PAYSTACK_PUBLIC_KEY!);
-		Paystack.bootstrap();
-        
-        setupPassport(passport);
-        app.use(passport.initialize());
+		ServiceManager.initialize();
+
+		setupPassport(passport);
+		app.use(passport.initialize());
 
 		app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 			console.log(err);
@@ -29,4 +29,3 @@ AppDataSource.initialize()
 		app.listen(port, () => console.log(`Server running on: ${port}`));
 	})
 	.catch((error) => console.error(error));
-	

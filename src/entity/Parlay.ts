@@ -2,11 +2,14 @@ import {
 	Column,
 	Entity,
 	JoinColumn,
+	ManyToOne,
+	OneToMany,
 	OneToOne,
 	PrimaryGeneratedColumn,
 } from "typeorm";
 import Timestamp from "./Timestamp";
 import { User } from "./User";
+import Bet from "./Bet";
 
 export enum Status {
 	DRAFT = 0,
@@ -64,9 +67,16 @@ export class Parlay extends Timestamp {
 	close_time: string;
 
 	@JoinColumn({
-		name: 'creator_id',
-		referencedColumnName: 'id',
+		name: "creator_id",
+		referencedColumnName: "id",
 	})
 	@OneToOne(() => User)
 	creator: User;
+
+	@JoinColumn({
+		name: "id",
+		referencedColumnName: "parlay_id",
+	})
+	@OneToMany(() => Bet, (bet) => bet.parlay)
+	bets: Bet[];
 }

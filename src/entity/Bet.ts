@@ -1,6 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+	Column,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	OneToMany,
+	OneToOne,
+	PrimaryGeneratedColumn,
+} from "typeorm";
 import Timestamp from "./Timestamp";
-import { Status } from "./Parlay";
+import { Parlay, Status } from "./Parlay";
 
 @Entity({
 	name: "bets",
@@ -24,6 +32,13 @@ export default class Bet extends Timestamp {
 	@Column()
 	selected_outcome: number;
 
-    @Column()
-    odds: number;
+	@Column()
+	odds: number;
+
+	@JoinColumn({
+		name: "parlay_id",
+		referencedColumnName: "id",
+	})
+	@ManyToOne(() => Parlay, (parlay) => parlay.bets)
+	parlay: Parlay;
 }
