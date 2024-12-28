@@ -26,10 +26,10 @@ export type ParlayOutcome = {
 })
 export class Parlay extends Timestamp {
 	@PrimaryGeneratedColumn()
-	id: Number;
+	id: number;
 
 	@Column()
-	title: String;
+	title: string;
 
 	@Column()
 	creator_id: Number;
@@ -40,7 +40,7 @@ export class Parlay extends Timestamp {
 	outcomes: ParlayOutcome[];
 
 	@Column()
-	pool: Number;
+	pool: number;
 
 	@Column()
 	status: Status;

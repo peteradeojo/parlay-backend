@@ -8,7 +8,7 @@ import { User } from "./User";
 })
 export class Wallet extends Timestamp {
 	@PrimaryGeneratedColumn()
-	id: Number;
+	id: number;
 
 	@Column()
 	amount: number;

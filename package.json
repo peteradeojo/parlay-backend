@@ -38,9 +38,10 @@
       "start": "cross-env NODE_ENV=production node build/index.js",
       "build": "tsc",
       "typeorm": "typeorm-ts-node-commonjs",
-      "migrate:run": "typeorm-ts-node-commonjs -d src/data-source.ts migration:run",
+      "migrate": "typeorm-ts-node-commonjs -d src/data-source.ts migration:run",
       "migrate:revert": "typeorm-ts-node-commonjs -d src/data-source.ts migration:revert",
-      "migrate:show": "typeorm-ts-node-commonjs -d src/data-source.ts migration:show"
+      "migrate:show": "typeorm-ts-node-commonjs -d src/data-source.ts migration:show",
+      "migrate:create": "typeorm-ts-node-commonjs migration:create"
    },
    "type": "commonjs",
    "license": "MIT"

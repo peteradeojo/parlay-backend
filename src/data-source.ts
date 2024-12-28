@@ -1,8 +1,13 @@
 import "reflect-metadata";
-import { DataSource, TableColumn, TableColumnOptions } from "typeorm";
+import {
+	DataSource,
+	TableColumnOptions,
+} from "typeorm";
 import { User } from "./entity/User";
 import { Parlay } from "./entity/Parlay";
 import { Wallet } from "./entity/Wallet";
+import Bet from "./entity/Bet";
+import { Transaction } from "./entity/Transaction";
 
 if (process.env.APP_ENV != "production") {
 	require("dotenv").config();
@@ -18,7 +23,7 @@ export const AppDataSource = new DataSource({
 	url: process.env.DATABASE_URL,
 	synchronize: false,
 	logging: false,
-	entities: [User, Parlay, Wallet],
+	entities: [User, Parlay, Wallet, Transaction, Bet],
 	migrations: [
 		process.env.NODE_ENV == "production"
 			? "./build/migrations/*.js"
@@ -39,5 +44,14 @@ export const DefaultColumns: TableColumnOptions[] = [
 		type: "timestamp",
 		default: "current_timestamp",
 		precision: 0,
+	},
+];
+
+export const DefaultColumnsWithId = [
+	...DefaultColumns,
+	{
+		name: "id",
+		type: "bigserial",
+		isPrimary: true,
 	},
 ];

@@ -22,7 +22,7 @@ export default class Bet extends Timestamp {
 	status: Status;
 
 	@Column()
-	outcome: number;
+	selected_outcome: number;
 
     @Column()
     odds: number;

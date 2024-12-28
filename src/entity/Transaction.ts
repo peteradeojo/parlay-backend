@@ -2,7 +2,9 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import Timestamp from "./Timestamp";
 import { Status } from "./Parlay";
 
-@Entity()
+@Entity({
+	name: "transactions",
+})
 export class Transaction extends Timestamp {
 	@PrimaryGeneratedColumn()
 	id: number;
@@ -14,14 +16,20 @@ export class Transaction extends Timestamp {
 	wallet_id: number;
 
 	@Column()
+	reference: string;
+
+	@Column()
+	processing_id: string;
+
+	@Column()
 	amount: number;
 
 	@Column()
 	status: Status;
 
 	@Column()
-	name: string | null;
+	name: string;
 
 	@Column()
-	description: string | null;
+	description: string;
 }

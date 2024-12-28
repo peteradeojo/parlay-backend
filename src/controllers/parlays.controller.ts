@@ -72,7 +72,7 @@ export default class ParlayController {
 	}
 
 	async updateParlay(
-		id: Number,
+		id: number,
 		data: DeepPartial<Parlay>
 	): Promise<UpdateResult> {
 		const parlay = await this.repository.update(

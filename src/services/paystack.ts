@@ -6,6 +6,16 @@ interface TransactionInitResponse {
 	authorization_url: string;
 }
 
+interface VerificationData {
+	status: "success" | "failed" | "pending";
+	amount: number;
+	customer: any;
+	fees: number;
+	requested_amount: number;
+	reference: string;
+	id: number;
+}
+
 interface PaystackResponse<T = Record<string, any>> {
 	status: boolean;
 	message: string;
@@ -29,7 +39,7 @@ export default class Paystack {
 	}
 
 	static async verifyTransaction(reference: string) {
-		return await this.ax.get<PaystackResponse>(
+		return await this.ax.get<PaystackResponse<VerificationData>>(
 			`${this.url}/transaction/verify/${reference}`
 		);
 	}

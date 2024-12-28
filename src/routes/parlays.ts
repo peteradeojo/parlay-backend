@@ -5,6 +5,7 @@ import Joi from "joi";
 import { Parlay, Status } from "../entity/Parlay";
 import { DeepPartial } from "typeorm";
 import { randomInt } from "crypto";
+import { WalletService } from "../services/wallet.service";
 
 const router = express.Router();
 
@@ -43,8 +44,6 @@ export default () => {
 	router.post("/new", validateSchema(parlaySchema), async (req, res) => {
 		try {
 			const data: DeepPartial<Parlay> = req.body;
-
-			console.log(data);
 
 			const parlay = await new ParlayController().createParlay(
 				{ ...req.body, creator_id: req.user!.id },
@@ -103,6 +102,11 @@ export default () => {
 					return;
 				}
 
+				if (req.user!.wallet.amount < parlay.entry_amount) {
+					res.status(419).json({ message: "Insufficient funds." });
+					return;
+				}
+
 				let code: number | undefined = undefined;
 
 				if (status == Status.OPEN) {
@@ -112,7 +116,21 @@ export default () => {
 					);
 				}
 
-				const result = await controller.updateParlay(parlay.id, {
+				const walletService = new WalletService();
+
+				const tx = await walletService.initializeTransaction({
+					amount: -1 * parlay.entry_amount,
+					name: "Parlay entry",
+					description: parlay.title,
+					reference: "PAR-" + String(code),
+					status: Status.OPEN,
+					user_id: req.user!.id,
+					wallet_id: req.user!.wallet.id,
+				});
+
+				await walletService.fundWallet(tx);
+
+				await controller.updateParlay(parlay.id, {
 					title,
 					outcomes,
 					close_date,
@@ -124,7 +142,7 @@ export default () => {
 					code,
 				});
 
-				res.json({ parlay, result });
+				res.json({ parlay, transaction: tx });
 			} catch (error: any) {
 				console.error(error);
 				res.status(500).json({ message: error.message });
