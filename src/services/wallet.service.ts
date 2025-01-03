@@ -48,4 +48,8 @@ export class WalletService {
 	async getTransaction(query: FindOptionsWhere<Transaction>) {
 		return this.transactions.findOne({ where: query });
 	}
+	
+	async saveTransaction(transaction: Transaction) {
+		return this.transactions.save(transaction);
+	}
 }

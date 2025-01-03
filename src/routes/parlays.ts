@@ -63,8 +63,8 @@ export default () => {
 				return;
 			}
 
-			const parlay = await new ParlayController().createParlay(
-				{ ...req.body, creator_id: req.user!.id },
+			let parlay = new ParlayController().initializeParlay(
+				{ ...data, creator_id: req.user!.id },
 				is_draft
 			);
 
@@ -76,24 +76,29 @@ export default () => {
 					amount: -1 * Number(data.entry_amount),
 					name: "Parlay entry",
 					reference: "PAR-" + parlay.code,
-					processing_id: String(parlay.id),
-					status: Status.RESOLVED,
+					// processing_id: String(parlay.id),
+					status: Status.OPEN,
+					description: parlay.title,
 				});
 
-				parlay.pool += parlay.entry_amount;
-
-				await new ParlayController().saveParlay(parlay);
-
 				await new WalletService().fundWallet(transaction);
+				parlay = await new ParlayController().saveParlay(parlay);  // * need to save to get the parlay id
+
 				await BettingService.placeBet(parlay, transaction, {
 					selected_outcome: 0,
 					odds: 1.0,
 				});
+
+				transaction.processing_id = String(parlay.id);
+				await new WalletService().saveTransaction(transaction);
+			} else {
+				parlay = await new ParlayController().saveParlay(parlay);
 			}
 
 			res.json(parlay);
-		} catch (err) {
+		} catch (err: any) {
 			console.error(err);
+			console.error(err.stack);
 			res.status(500).json({ error: err });
 		}
 		return;
@@ -119,7 +124,14 @@ export default () => {
 			const odds = await Promise.all(
 				parlay!.outcomes.map(async (o, k) => {
 					let amt = await BettingService.getOutcomeBetTotal(parlay?.id, k);
-					return parlay.pool / (amt || 0);
+
+					if (!amt || amt < 1) {
+						return 1;
+					}
+
+					const odds = parlay.pool / (amt || parlay.pool);
+					console.log(parlay.pool, o, amt, odds);
+					return odds;
 				})
 			);
 			res.json({ parlay, odds });

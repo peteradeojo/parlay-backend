@@ -16,6 +16,19 @@ export default class ParlayController {
 		this.repository = Database.datasource.getRepository(Parlay);
 	}
 
+	initializeParlay(data: DeepPartial<Parlay>, as_draft = false) {
+		if (as_draft) {
+			data.status = Status.DRAFT;
+		} else {
+			data.code = randomInt(9999, 1000000);
+		}
+
+		return this.repository.create({
+			...data,
+			status: as_draft ? Status.DRAFT : Status.OPEN,
+		});
+	}
+
 	async createParlay(
 		data: DeepPartial<Parlay>,
 		as_draft = false

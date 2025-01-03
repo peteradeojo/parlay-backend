@@ -20,7 +20,7 @@ export const setupPassport = (passport: PassportStatic) => {
                     if (!user) {
                         return done(false, null, "User not found.");
                     }
-    
+
                     return done(false, user);
                 } catch (error) {
                     console.error(error);

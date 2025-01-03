@@ -22,7 +22,7 @@ export default class BettingService {
 			selected_outcome: data.selected_outcome,
 		});
 
-		parlay.pool += parlay.entry_amount;
+		parlay.pool = parlay.pool ? parlay.pool + parlay.entry_amount : parlay.entry_amount;
 		new ParlayController().saveParlay(parlay);
 
 		return await this.repository.save(bet);
