@@ -17,6 +17,7 @@ export enum Status {
 	RUNNING = 2,
 	CLOSED = 3,
 	RESOLVED = 4,
+	COMPLETED = 5,
 }
 
 export type ParlayOutcome = {

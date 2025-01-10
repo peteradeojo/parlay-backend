@@ -26,7 +26,7 @@ export class WalletService {
 			throw new Error("Cannot fund from an already completed transaction.");
 		}
 
-		transaction.status = Status.RESOLVED;
+		transaction.status = Status.COMPLETED;
 		await this.transactions.save(transaction);
 
 		await this.repository.increment(
