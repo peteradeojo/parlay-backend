@@ -48,8 +48,25 @@ export class WalletService {
 	async getTransaction(query: FindOptionsWhere<Transaction>) {
 		return this.transactions.findOne({ where: query });
 	}
-	
+
 	async saveTransaction(transaction: Transaction) {
 		return this.transactions.save(transaction);
+	}
+
+	async getUserTransactions(
+		userid: number,
+		options?: {
+			page?: number;
+			count?: number;
+		}
+	) {
+		return await this.transactions.find({
+			where: { user_id: userid },
+			order: {
+				createdat: "DESC",
+			},
+			take: options?.count || 30,
+			skip: options?.page !== undefined ? (options.page - 1) * 30 : 0,
+		});
 	}
 }

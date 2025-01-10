@@ -7,6 +7,7 @@ import { setupPassport } from "./lib/passport";
 import { NextFunction, Request, Response } from "express";
 import Paystack from "./services/paystack";
 import { ServiceManager } from "./lib/util";
+import CacheManager from "./lib/cache";
 
 AppDataSource.initialize()
 	.then(async (source) => {
@@ -17,8 +18,8 @@ AppDataSource.initialize()
 		ServiceManager.initialize();
 
 		setupPassport(passport);
+		
 		app.use(passport.initialize());
-
 		app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 			console.log(err);
 			res.status(500).json({

@@ -7,6 +7,7 @@ import { DeepPartial } from "typeorm";
 import { randomInt } from "crypto";
 import { WalletService } from "../services/wallet.service";
 import BettingService from "../services/bets.service";
+import { HttpStatusCode } from "axios";
 
 const router = express.Router();
 
@@ -42,67 +43,74 @@ export default () => {
 		return;
 	});
 
-	router.post("/new", validateSchema(parlaySchema), async (req, res) => {
-		try {
-			const data: DeepPartial<Parlay> = req.body;
+	router.post(
+		"/new",
+		validateSchema(
+			parlaySchema.append({
+				selected_outcome: Joi.number().max(4).required(),
+			})
+		),
+		async (req, res) => {
+			try {
+				const data: DeepPartial<Parlay & { selected_outcome: number }> =
+					req.body;
+				const is_draft = req.body.status === 0;
+				if (!is_draft && !data.entry_amount) {
+					res
+						.status(400)
+						.json({ message: "Can't publish a parlay with empty amount." });
+					return;
+				}
 
-			const is_draft = req.body.status === 0;
+				if (
+					req.user!.wallet.amount == 0 ||
+					req.user!.wallet.amount < data.entry_amount!
+				) {
+					res.status(419).json({ message: "Fund your wallet" });
+					return;
+				}
 
-			if (!is_draft && !data.entry_amount) {
-				res
-					.status(400)
-					.json({ message: "Can't publish a parlay with empty amount." });
-				return;
+				let parlay = new ParlayController().initializeParlay(
+					{ ...data, creator_id: req.user!.id },
+					is_draft
+				);
+
+				if (!is_draft) {
+					// * this is a published parlay
+					const transaction = await new WalletService().initializeTransaction({
+						user_id: req.user!.id,
+						wallet_id: req.user!.wallet.id,
+						amount: -1 * Number(data.entry_amount),
+						name: "Parlay entry",
+						reference: "PAR-" + parlay.code,
+						// processing_id: String(parlay.id),
+						status: Status.OPEN,
+						description: parlay.title,
+					});
+
+					await new WalletService().fundWallet(transaction);
+					parlay = await new ParlayController().saveParlay(parlay); // * need to save to get the parlay id
+
+					await BettingService.placeBet(parlay, transaction, {
+						selected_outcome: data.selected_outcome || 0,
+						odds: 1.0,
+					});
+
+					transaction.processing_id = String(parlay.id);
+					await new WalletService().saveTransaction(transaction);
+				} else {
+					parlay = await new ParlayController().saveParlay(parlay);
+				}
+
+				res.json(parlay);
+			} catch (err: any) {
+				console.error(err);
+				console.error(err.stack);
+				res.status(500).json({ error: err });
 			}
-
-			if (
-				req.user!.wallet.amount == 0 ||
-				req.user!.wallet.amount < data.entry_amount!
-			) {
-				res.status(419).json({ message: "Fund your wallet" });
-				return;
-			}
-
-			let parlay = new ParlayController().initializeParlay(
-				{ ...data, creator_id: req.user!.id },
-				is_draft
-			);
-
-			if (!is_draft) {
-				// * this is a published parlay
-				const transaction = await new WalletService().initializeTransaction({
-					user_id: req.user!.id,
-					wallet_id: req.user!.wallet.id,
-					amount: -1 * Number(data.entry_amount),
-					name: "Parlay entry",
-					reference: "PAR-" + parlay.code,
-					// processing_id: String(parlay.id),
-					status: Status.OPEN,
-					description: parlay.title,
-				});
-
-				await new WalletService().fundWallet(transaction);
-				parlay = await new ParlayController().saveParlay(parlay);  // * need to save to get the parlay id
-
-				await BettingService.placeBet(parlay, transaction, {
-					selected_outcome: 0,
-					odds: 1.0,
-				});
-
-				transaction.processing_id = String(parlay.id);
-				await new WalletService().saveTransaction(transaction);
-			} else {
-				parlay = await new ParlayController().saveParlay(parlay);
-			}
-
-			res.json(parlay);
-		} catch (err: any) {
-			console.error(err);
-			console.error(err.stack);
-			res.status(500).json({ error: err });
+			return;
 		}
-		return;
-	});
+	);
 
 	router.get("/drafts", async (req, res) => {
 		const drafts = await new ParlayController().getUserDrafts(req.user!.id);
@@ -123,15 +131,16 @@ export default () => {
 
 			const odds = await Promise.all(
 				parlay!.outcomes.map(async (o, k) => {
+					let noBets = false;
 					let amt = await BettingService.getOutcomeBetTotal(parlay?.id, k);
 
 					if (!amt || amt < 1) {
-						return 1;
+						noBets = true;
+						amt = 1;
 					}
 
-					const odds = parlay.pool / (amt || parlay.pool);
-					console.log(parlay.pool, o, amt, odds);
-					return odds;
+					const odds = parlay.pool / amt;
+					return { value: odds, noBets };
 				})
 			);
 			res.json({ parlay, odds });
@@ -234,17 +243,21 @@ export default () => {
 			const parlay = await new ParlayController().getParlay(id);
 
 			if (!parlay) {
-				res.json(404).json({ message: "Parlay not found" });
+				res
+					.status(HttpStatusCode.NotFound)
+					.json({ message: "Parlay not found" });
 				return;
 			}
 
 			if (await BettingService.userHasPlacedBet(req.user!.id, parlay.id)) {
-				res.status(419).json({ message: "User has placed a bet already." });
+				res
+					.status(HttpStatusCode.ExpectationFailed)
+					.json({ message: "User has placed a bet already." });
 				return;
 			}
 
 			if (parlay.entry_amount > req.user!.wallet.amount) {
-				res.status(419).json({
+				res.status(HttpStatusCode.ExpectationFailed).json({
 					message: "Please fund your wallet",
 				});
 				return;

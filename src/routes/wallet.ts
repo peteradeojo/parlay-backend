@@ -74,7 +74,8 @@ export default () => {
 
 				if (paystackTx.status != "success") {
 					res.status(400).json({ message: "Transaction failed." });
-					return;``
+					return;
+					``;
 				}
 
 				if (paystackTx.amount / 100 != transaction.amount) {
@@ -92,6 +93,14 @@ export default () => {
 			}
 		}
 	);
+
+	router.get("/transactions", async (req, res) => {
+		const service = new WalletService();
+
+		const data = await service.getUserTransactions(req.user!.id as number);
+
+		res.json({ data });
+	});
 
 	return router;
 };

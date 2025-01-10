@@ -1,7 +1,8 @@
 import { Handler } from "express";
 import { Schema } from "joi";
 
-export const validateSchema = (
+export const 
+validateSchema = (
 	schema: Schema,
 	allowUnknown?: boolean
 ): Handler => {
@@ -15,6 +16,7 @@ export const validateSchema = (
 
 		res.status(400).json({
 			error: errors.error.message,
+			message: errors.error.message,
 		});
 
 		return;

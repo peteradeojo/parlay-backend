@@ -8,12 +8,14 @@ import BettingService from "../services/bets.service";
 
 export default class ParlayController {
 	private repository: Repository<Parlay>;
+	private betsRepository: Repository<Bet>;
 
 	static readonly MIN_CODE = 9999;
 	static readonly MAX_CODE = 1000000;
 
 	constructor() {
 		this.repository = Database.datasource.getRepository(Parlay);
+		this.betsRepository = Database.datasource.getRepository(Bet);
 	}
 
 	initializeParlay(data: DeepPartial<Parlay>, as_draft = false) {
