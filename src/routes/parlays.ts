@@ -47,7 +47,10 @@ export default () => {
 		"/new",
 		validateSchema(
 			parlaySchema.append({
-				selected_outcome: Joi.number().max(4).required(),
+				selected_outcome: Joi.number().max(4).when("status", {
+					is: Status.DRAFT,
+					then: Joi.optional(),
+				}),
 			})
 		),
 		async (req, res) => {
