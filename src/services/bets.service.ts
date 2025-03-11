@@ -22,7 +22,9 @@ export default class BettingService {
 			selected_outcome: data.selected_outcome,
 		});
 
-		parlay.pool = parlay.pool ? parlay.pool + parlay.entry_amount : parlay.entry_amount;
+		parlay.pool = parlay.pool
+			? parlay.pool + parlay.entry_amount
+			: parlay.entry_amount;
 		new ParlayController().saveParlay(parlay);
 
 		return await this.repository.save(bet);
@@ -53,6 +55,28 @@ export default class BettingService {
 			parlay_id,
 			selected_outcome: outcome,
 			status: Status.OPEN,
+		});
+	}
+
+	static async getUserBets(userId: number) {
+		return await this.repository.find({
+			where: {
+				player_id: userId,
+			},
+			relations: {
+				parlay: true,
+			},
+		});
+	}
+
+	static async getUserPlay(betId: number, userId: number) {
+		return await this.repository.findOne({
+			where: { id: betId, player_id: userId },
+			relations: {
+				parlay: {
+					creator: true,
+				},
+			},
 		});
 	}
 }

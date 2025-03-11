@@ -8,6 +8,7 @@ import { randomInt } from "crypto";
 import { WalletService } from "../services/wallet.service";
 import BettingService from "../services/bets.service";
 import { HttpStatusCode } from "axios";
+import SocketIoManager from "../lib/iomanager";
 
 const router = express.Router();
 
@@ -279,6 +280,13 @@ export default () => {
 			const bet = await BettingService.placeBet(parlay, transaction, {
 				...req.body,
 			});
+
+			SocketIoManager.getIo()
+				.to(`feed-${parlay.code}`)
+				.emit("feed-update", {
+					message: `${req.user!.firstname} has joined the parlay.`,
+					actions: ["refresh-odds"],
+				});
 
 			res.json({ bet });
 			return;

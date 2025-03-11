@@ -4,6 +4,7 @@ import auth from "./auth";
 import parlays from "./parlays";
 import passport from "passport";
 import wallet from "./wallet";
+import bets from "./bets";
 
 const router = express.Router();
 
@@ -22,6 +23,11 @@ export default () => {
 		"/wallet",
 		passport.authenticate("jwt", { session: false }),
 		wallet()
+	);
+	router.use(
+		"/bets",
+		passport.authenticate("jwt", { session: false }),
+		bets()
 	);
 
 	return router;

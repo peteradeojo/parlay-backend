@@ -5,9 +5,9 @@ import passport from "passport";
 import app from "./server";
 import { setupPassport } from "./lib/passport";
 import { NextFunction, Request, Response } from "express";
-import Paystack from "./services/paystack";
 import { ServiceManager } from "./lib/util";
-import CacheManager from "./lib/cache";
+import { createServer } from "http";
+import SocketIoManager from "./lib/iomanager";
 
 AppDataSource.initialize()
 	.then(async (source) => {
@@ -18,7 +18,7 @@ AppDataSource.initialize()
 		ServiceManager.initialize();
 
 		setupPassport(passport);
-		
+
 		app.use(passport.initialize());
 		app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 			console.log(err);
@@ -27,6 +27,9 @@ AppDataSource.initialize()
 			});
 		});
 
-		app.listen(port, () => console.log(`Server running on: ${port}`));
+		const server = createServer(app);
+		SocketIoManager.initialize(server);
+
+		server.listen(port, () => console.log(`Server running on: ${port}`));
 	})
 	.catch((error) => console.error(error));
